@@ -1,29 +1,34 @@
-import os.path
-
 import PyPDF2
 from pdf2image import convert_from_path
+import threading
+import time
 
 
-def pdfToImg(file_name_n_path):
-    print("convert started")
+class PdfConverter(threading.Thread):
+    def __init__(self, file_name_n_path, name, start, end, dpi=200):
+        super().__init__()
+        self.file_name_n_path = file_name_n_path
+        self.name = name
+        self.first = start
+        self.last = end
+        self.dpi = dpi
 
-    file = open(file_name_n_path, "rb")
+    def run(self):
+        print(f"converting {self.first} to {self.last}")
+        pdfToImg(self.file_name_n_path, self.name, self.first, self.last, self.dpi)
+
+
+def getPageAmount(file):
+    file = open(file, "rb")
     readpdf = PyPDF2.PdfFileReader(file)
     totalpages = readpdf.getNumPages()
+    return totalpages
 
-    file_name = file_name_n_path.split("/")[-1].split(".")[0]
-    while os.path.exists(f"../Exports/{file_name}"):
-        file_name = file_name + "1"
-    os.mkdir(f"../Exports/{file_name}")
 
-    for j in range(1, totalpages + 1, 200):
-        last_page = j + 199 if j + 199 < totalpages else totalpages
-        print(f"converting {j} to {last_page}")
-        pages = convert_from_path(file_name_n_path, first_page=j, last_page=last_page, dpi=200)
+def pdfToImg(file_name_n_path, name, start, end, dpi=200):
 
-        for i, page in enumerate(pages):
-            img_name = f"../Exports/{file_name}/{str(j + i)}.jpg"
-            page.save(img_name, "JPEG")
-            print(img_name)
+    pages = convert_from_path(file_name_n_path, first_page=start, last_page=end, dpi=dpi)
 
-    return file_name
+    for i, page in enumerate(pages):
+        img_name = f"../Exports/Temp/{name}/{str(start + i)}.jpg"
+        page.save(img_name, "JPEG")
