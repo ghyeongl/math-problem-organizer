@@ -159,12 +159,12 @@ class CanvasHandler(Frame):
             self.master2 = master2
 
         def importFile(self):
-            self.master2.pages.destroy()
-            if self.master2.file.importFile():
-                self.master2.file.makeImages()
-                self.master2.pages.setFromFile()
-                self.setLocation(self.master2.file.file)
-                self.setScale(self.master2.pages.amount)
+            self.master2.pagesH.destroy()
+            if self.master2.fileH.importFile():
+                self.master2.fileH.makeImages()
+                self.master2.pagesH.setFromFile()
+                self.setLocation(self.master2.fileH.fileH)
+                self.setScale(self.master2.pagesH.amount)
             else:
                 pass
 
@@ -181,22 +181,22 @@ class CanvasHandler(Frame):
             self.master2.master1.master0.a0.a2.configure(text=file)
 
         def nextPageEvent(self, event):
-            self.master2.pages.nextPage()
+            self.master2.pagesH.nextPage()
 
         def prevPageEvent(self, event):
-            self.master2.pages.prevPage()
+            self.master2.pagesH.prevPage()
 
         def reset(self):
-            self.master2.file.reset()
-            self.master2.pages.reset()
+            self.master2.fileH.reset()
+            self.master2.pagesH.reset()
 
         def templateReset(self):
-            self.master2.file.reset()
-            self.master2.pages.reset()
-            self.master2.data.reset()
+            self.master2.pagesH.reset()
+            self.master2.fileH.reset()
+            self.master2.dataH.reset()
 
         def saveData(self):
-            self.master2.data.save()
+            self.master2.dataH.save()
 
     # 파일을 관리하는 역할
     class FileH:
@@ -207,9 +207,9 @@ class CanvasHandler(Frame):
             self.imgNum = 0
 
         def importFile(self):
-            self.master2.interface.reset()
+            self.master2.interfaceH.reset()
             self.file = filedialog.askopenfilename(
-                initialdir="/", title="Select file", filetypes=(("pdf files", "*.pdf"),))
+                initialdir="/", title="Select fileH", filetypes=(("pdf files", "*.pdf"),))
             return self.isImported()
 
         def isImported(self):
@@ -238,12 +238,16 @@ class CanvasHandler(Frame):
             threadList = []
             before = time.time()
             self.master2.master1.master0.setTitle(f": Converting...")
-            for i in range(1, totalPages + 1, 100):
-                lastPage = i + 99 if i + 99 < totalPages else totalPages
+            for i in range(1, totalPages + 1, 50):
+                lastPage = i + 49 if i + 49 < totalPages else totalPages
 
                 t = pdf_convert.PdfConverter(self.file, file_name, i, lastPage)
                 threadList.append(t)
                 t.start()
+                if len(threadList) == 8:
+                    for t in threadList:
+                        t.join()
+                    threadList = []
 
             for t in threadList:
                 t.join()
@@ -276,44 +280,44 @@ class CanvasHandler(Frame):
                 return self._current
 
             def setCurrent(self, current: int) -> int:
-                self.master3.master2.data.save(self._current)
+                self.master3.master2.dataH.save(self._current)
                 if 1 <= int(current) <= int(self.amount):
                     self._current = int(current)
                 return self._current
 
         def setFromFile(self):
-            self.file = self.master2.file
+            self.file = self.master2.fileH
             self.amount = self.file.imgNum
             self.pageNum = self.PageNum(self, self.amount)
             self.setPage()
 
         def destroy(self):
             if self.master2.canvas is not None:
-                self.master2.data.save(self.pageNum.getCurrent())
+                self.master2.dataH.save(self.pageNum.getCurrent())
             self.reset()
 
         def setPage(self, page=None):
             if page is not None:
                 self.pageNum.setCurrent(page)
-            self.master2.page.setCanvas(f"{self.file.imgPath}/{self.pageNum.getCurrent()}.jpg")
+            self.master2.pageH.setCanvas(f"{self.file.imgPath}/{self.pageNum.getCurrent()}.jpg")
 
         def nextPage(self):
             current = self.pageNum.getCurrent()
             if current >= self.amount:
                 return
-            self.master2.interface.setScaleStatus(current + 1)
+            self.master2.interfaceH.setScaleBarStatus(current + 1)
 
         def prevPage(self):
             current = self.pageNum.getCurrent()
             if current < 2:
                 return
-            self.master2.interface.setScaleStatus(current - 1)
+            self.master2.interfaceH.setScaleBarStatus(current - 1)
 
         def reset(self):
-            self.master2.page.reset()
+            self.master2.pageH.reset()
             self.__init__(self.master2)
-            self.master2.interface.setScaleStatus(self.pageNum.getCurrent())
-            self.master2.interface.setScale(self.amount)
+            self.master2.interfaceH.setScaleBarStatus(self.pageNum.getCurrent())
+            self.master2.interfaceH.setScaleBar(self.amount)
 
     # 페이지의 수정, 보기 변환, 실행 취소 등을 관리하는 역할
     class PageH:
@@ -366,7 +370,7 @@ class CanvasHandler(Frame):
             self._resetArgs()
             self.structData()
             if current is None:
-                current = self.master2.pages.pageNum.getCurrent()
+                current = self.master2.pagesH.pageNum.getCurrent()
             if self.master2.canvas is not None:
                 for item in self.master2.canvas.rectStack:
                     self.data[self.templateName][self.file][str(current)].append(item)
@@ -418,8 +422,8 @@ class CanvasHandler(Frame):
 
         def _resetArgs(self):
             self.templateName = self.master2.master1.master0.templateName
-            self.file = self.master2.file.file
-            self.pageNum = self.master2.pages.pageNum
+            self.file = self.master2.fileH.fileH
+            self.pageNum = self.master2.pagesH.pageNum
             self.canvas = self.master2.canvas
 
 
