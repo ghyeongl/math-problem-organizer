@@ -1,6 +1,7 @@
 import os
 import shutil
 
+from Refractor1.classes.book import Book
 from Refractor1.classes.pdf_converter import PdfConverter
 
 
@@ -20,6 +21,9 @@ class FileHandler:
         self.imgForm = "JPEG"
         self.imgDpi = 200
         self.imgInfo = None
+
+    def getBook(self):
+        return Book(self.filePath, self.fileName)
 
     def checkFileImported(self):
         return self.filePath != ""

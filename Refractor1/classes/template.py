@@ -83,7 +83,7 @@ class Template:
 
     def save(self):
         self.saveImageOnly()
-        self.dataHandler.saveData()
+        self.dataHandler.saveData(self.fileHandler.getBook(), self.currentPage)
         return True
 
     def saveImageOnly(self):
