@@ -1,6 +1,5 @@
 
 
 class Book:
-    def __init__(self, template_name, book_filename):
-        self.templateName = template_name
+    def __init__(self, book_filename):
         self.title = book_filename

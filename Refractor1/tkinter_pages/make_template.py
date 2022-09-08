@@ -46,7 +46,7 @@ class PageOnCanvas(Canvas):
         self.configure(scrollregion=(0, 0, self.template.getWidth(), self.template.getHeight()))
 
     def on_button_press(self, event):
-        self.start = Coord(event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
+        self.start.setCoord(event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
         self.rect = self.create_rectangle(self.start.x, self.start.y, self.start.x, self.start.y, fill="",
                                           outline="red")
 
@@ -83,10 +83,10 @@ class PageOnCanvas(Canvas):
 
 
 class CanvasHandler(Frame):
-    def __init__(self, chiefClass, **kw):
+    def __init__(self, chiefClass, templateName, **kw):
         super().__init__(**kw)
         self.chiefClass = chiefClass  # CanvasHandler should be intend Tkinter class
-        self.templateName = "Sample Template"
+        self.templateName = templateName
         self.template = Template(self.templateName)
 
         self.configurator = self.Configurator(self.chiefClass, self.template)
@@ -209,12 +209,11 @@ class CanvasHandler(Frame):
             self.template.setPage(1)
 
 
-class Window(Tk):
-    def __init__(self):
-        super().__init__()
-        self.template = Template("Sample Template")
+class MakeTemplateWindow(Toplevel):
+    def __init__(self, master, templateName):
+        super().__init__(master)
 
-        self.c0 = self.ColumnC(self)
+        self.c0 = self.ColumnC(self, templateName)
         self.a0 = self.ColumnA(self, self.c0.canvasH)
         self.b0 = self.ColumnB(self, self.c0.canvasH)
         self.c0.canvasH.configurator.lateInitVariables()
@@ -254,12 +253,12 @@ class Window(Tk):
             self.bind_all("<Right>", canvasH.controller.nextPageEvent)
 
     class ColumnC(Frame):
-        def __init__(self, master0):
+        def __init__(self, master0, templateName):
             super().__init__(master0)
             self.master0 = master0
             self.config(width=1500, height=800)
             self.vbar = Scrollbar(self, orient=VERTICAL)
-            self.canvasH = CanvasHandler(self.master0)
+            self.canvasH = CanvasHandler(self.master0, templateName)
             self.test = Label(self, text="test", background="green")
             self.vbar.pack(side=RIGHT, fill=Y)
             self.canvasH.pack(side=LEFT, fill=BOTH, expand=True)
@@ -274,6 +273,7 @@ class Window(Tk):
         self.destroy()
 
     def setTitle(self, value=None):
+        print(self.c0.canvasH.templateName)
         if value is None:
             self.title(f"Template maker : {self.c0.canvasH.templateName}")
         else:
@@ -284,4 +284,5 @@ class Window(Tk):
         self.mainloop()
 
 
-window = Window()
+if __name__ == "__main__":
+    window = MakeTemplateWindow()
