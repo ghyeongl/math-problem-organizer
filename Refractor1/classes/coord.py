@@ -12,3 +12,15 @@ class Coord:
     def setCoord(self, x, y):
         self.x = x
         self.y = y
+
+    def setWidth(self, w):
+        self.w = w
+
+    def setHeight(self, h):
+        self.h = h
+
+    def setX(self, x):
+        self.x = x
+
+    def setY(self, y):
+        self.y = y

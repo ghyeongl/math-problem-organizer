@@ -1,6 +1,5 @@
 import os.path
 import threading
-import time
 
 import PyPDF2
 from pdf2image import convert_from_path
@@ -18,13 +17,17 @@ class PdfConverter:
     def setFilePath(self, filePath):
         self.filePath = filePath
 
-    def initConvert(self, imgInfo: tuple):
+    def initConvert(self, imgInfo: tuple, startP=1, endP=None):
         if self.filePath is None or self.filePath == "":
             return False
-        totalPages = self.getPageAmount()
-        for i in range(0, totalPages, self.runAmount):
+        startP -= 1
+        if endP is None:
+            endP = self.getPageAmount()
+        if endP > self.getPageAmount():
+            raise Exception
+        for i in range(startP, endP, self.runAmount):
             start = i + 1
-            end = i + self.runAmount if i + self.runAmount < totalPages else totalPages
+            end = i + self.runAmount if i + self.runAmount < endP else endP
             pageRange = (start, end)
             ct = ConverterThread(self.filePath, pageRange, imgInfo)
             self.threadList.append(ct)

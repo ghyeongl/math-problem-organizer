@@ -80,15 +80,13 @@ class HandoutMaker:
         self.pageL = PageLayout()
         self.dataH = DataHandler(templateName)
 
-        self.image = Image.new("RGB", (self.pageL.width, self.pageL.height), (255, 255, 255))
-        self.draw = ImageDraw.Draw(self.image)
+        self.font = self.setFont(100)
 
         self.problemsArr = ProblemsArranger()
         self.setProblems()
         self.problemsArr.getStructPages()
 
         self.img_list = []
-        self.image.show()
 
     def setFont(self, size):
         self.font = ImageFont.truetype("../../Data/Pretendard-Medium.otf", size)
@@ -102,24 +100,44 @@ class HandoutMaker:
                     p = Problem(t, f, page, i)
                     self.problemsArr.appendProblem(p)
 
-    def setHeaderArea(self, start: Coord, templateName):
-        text = f"정인수학 프린트: {templateName}"
-        textSize = 100
-        self.draw.text((start.x, start.y), text, font=self.setFont(textSize), fill=(0, 0, 0))
-        return Coord(start.x, start.y + textSize, start.w, start.h - textSize)
+    def makeEachPage(self):
+        for i in range(len(self.problemsArr.pages)):
+            pgNum = i + 1
+            image = Image.new("RGB", (self.pageL.width, self.pageL.height), (255, 255, 255))
+            draw = ImageDraw.Draw(image)
 
-    def setTitleArea(self, start: Coord, title):
+            startP = Coord(self.pageL.margin, self.pageL.margin, self.pageL.avWidth, self.pageL.avHeight)
+            startP = self.setHeaderArea(startP, draw, self.dataH.templateName)
+            startP = self.setProblemsArea(startP, draw, self.problemsArr.getPage(pgNum))
+            startP = self.setPageNumberArea(startP, draw, pgNum)
+
+            self.img_list.append(image.copy())
+
+    def setHeaderArea(self, start: Coord, draw, templateName):
+        text = f"정인수학 프린트: {templateName} - 날짜: ____________ 이름: ____________ 점수: ____________"
+        textSize = 100
+        draw.text((start.x, start.y - textSize), text, font=self.setFont(textSize), fill=(0, 0, 0))
+        return Coord(start.x, start.y, start.w, start.h)
+
+    def setTitleArea(self, start: Coord, draw):
         text = f"날짜: ____________ 이름: ____________ 점수: ____________"
         margin = 100
         textSize = 120
-        self.draw.text((start.x, start.y + margin), text, font=self.setFont(textSize), fill=(0, 0, 0))
+        draw.text((start.x, start.y + margin), text, font=self.setFont(textSize), fill=(0, 0, 0))
         return Coord(start.x, start.y + textSize + margin, start.w, start.h - textSize - margin)
 
-    def setProblemArea(self, start: Coord, problem):
-        for i in range(len(self.problemsArr.pages)):
-            page = self.problemsArr.getPage(i)
-            for b in page.blocks:
-                pass
+    @staticmethod
+    def setProblemsArea(start: Coord, draw, page):
+        gap = (page.getLeftSpace()) / (len(page.blocks))
+        for block in page.blocks:
+            startP = block.setArea(start, draw, gap)
+        return Coord(start.x, start.h, start.w, start.h)
+
+    def setPageNumberArea(self, start: Coord, draw, pageNum):
+        if start.y != start.h:
+            start.y = start.h
+        draw.text((start.x, start.y), str(pageNum), font=self.setFont(100), fill=(0, 0, 0))
+        return Coord(start.x, start.h, start.w, start.h)
 
 
 class PageLayout:
@@ -159,7 +177,8 @@ class ProblemsArranger:
             elif page.getLeftWithBlock(block) < seq[0].adjHeight + block.gap:
                 nextPage = Page(page.num + 1, self.start)
                 self.arrangeProblems(seq, Block(nextPage.space), nextPage)
-                # 이후 페이지 리스트에 추가
+                self.pages.add(page)
+                return
             elif block.col == 1:
                 newBlock = Block(page.space)
                 self.arrangeProblems(seq, newBlock, page)
@@ -243,8 +262,10 @@ class Problem:
 class Block:
     def __init__(self, maxHeight):
         self.problems = []
+        self.pInRow = None
         self.minHeight = 0
         self.maxHeight = maxHeight
+        self.col = 0
 
     def getMinHeight(self):
         return self.minHeight
@@ -253,21 +274,37 @@ class Block:
         return self.maxHeight
 
     def append(self, problem):
+        # 만약 1개의 문제가 있는 경우 2번째 문제가 들어갈 수 있는가?
+        if self.pInRow is None:
+            # pInRow 에 문제가 없는 경우, minHeight 이 이전 문제의 높이를 대변
+            if self.minHeight + problem.adjHeight < self.maxHeight:
+                if problem.col == 1:
+                    self.col = problem.col
+                    self.problems.append(problem)
+                    return True
+                self.col = problem.col
+                self.pInRow = problem
+                self.problems.append(problem)
+                return True
+        elif len(self.pInRow) == 1:
+            if self.col == 1:
+                return False
+            if max(self.pInRow[0].adjHeight, problem.adjHeight) + self.minHeight < self.maxHeight:
+                self.pInRow.append(problem)
+                self.problems.append(problem)
+                return True
+        else:
+            print("Unexpected Error")
         if self.minHeight + problem.adjHeight < self.maxHeight:
-            self.minHeight += problem.adjHeight
-            self.problems.append(problem)
+            if len(self.problems) == 0:
+                self.col = problem.col
+            elif len(self.problems) == 1:
+                self.minHeight += problem.adjHeight
+            elif len(self.problems) == 2:
+                self.problems.append(problem)
             return True
         else:
             return False
 
 
-# def main():
-#     data = CoordData("Sample Template")
-#     for file in data.get_data().keys():
-#         f = FileHandler(file, data)
-#         if f.isImported():
-#             f.exportImages()
-
-
-# main()
 handout = HandoutMaker("Sample Template")
