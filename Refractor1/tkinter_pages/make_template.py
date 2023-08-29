@@ -285,4 +285,7 @@ class MakeTemplateWindow(Toplevel):
 
 
 if __name__ == "__main__":
-    window = MakeTemplateWindow()
+    showTemplateWindow()
+
+def showTemplateWindow():
+    window = MakeTemplateWindow(None, "Test")

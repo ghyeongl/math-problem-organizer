@@ -213,3 +213,8 @@ cython_debug/
 
 Data/
 Exports/Temp/
+Exports/Temp_Books/
+Exports/Temp_Handout/
+Exports/Temp_Images/
+Exports/Temp_Problems/
+Sources/

@@ -48,7 +48,7 @@ class LayoutHandler:
                 self.handoutL.addPageLayout(self.pageH.pageL)
 
     def getPageImage(self):
-        return self.handoutL.getEntirePageImage()
+        pass
 
     class PageHandler:
         def __init__(self):
