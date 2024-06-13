@@ -13,8 +13,8 @@ class FileHandler:
 
         self.pdfConverter = PdfConverter()
 
-        self.fileDir = "../../Exports/Temp_Books"
-        self.imgDir = "../../Exports/Temp_Images"
+        self.fileDir = "Exports/Temp_Books"
+        self.imgDir = "Exports/Temp_Images"
         self._checkTempDir()
 
         self.imgExt = "jpg"
@@ -22,8 +22,9 @@ class FileHandler:
         self.imgDpi = 200
         self.imgInfo = None
 
-    def getBook(self):
-        return Book(self.filePath, self.fileName)
+    def getFile(self):
+        print("file path:", self.filePath)
+        return self.filePath
 
     def checkFileImported(self):
         return self.filePath != ""

@@ -4,7 +4,7 @@ import shutil
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk, ImageDraw
-from Tests import pdf_convert
+# from Tests import pdf_convert
 import time
 
 

@@ -3,11 +3,42 @@ import os.path
 from Refractor1.classes.data_handler import DataHandler
 from Refractor1.classes.file_handler import FileHandler
 from Refractor1.classes.image_painter import ImagePainter
+from Codes.Classes import DataAccessLayer
+from Codes.Classes import Snapshot
 
 
-class Template:
-    def __init__(self, template_name):
-        self.templateName = template_name
+class TemplateServiceLayer:
+    def __init__(self):
+        self.currentSnapshot = None
+        pass
+    
+    def setSnapshot(self, snapshot):
+        self.currentSnapshot:Snapshot = snapshot
+    
+    def getTemplatesList(self):
+        if self.currentSnapshot is None:
+            Exception('Snapshot not set')
+        return self.currentSnapshot.templates
+    
+    def getTemplate(self, name):
+        if self.currentSnapshot is None:
+            Exception('Snapshot not set')
+        return self.currentSnapshot.getTemplate(name)
+
+    def addTemplate(self, template):
+        if self.currentSnapshot is None:
+            Exception('Snapshot not set')
+        self.currentSnapshot.addTemplate(template)
+    
+    def removeTemplate(self, name):
+        if self.currentSnapshot is None:
+            Exception('Snapshot not set')
+        self.currentSnapshot.removeTemplate(name)
+    
+
+class TemplateModifier:
+    def __init__(self):
+        self.accessLayer = DataAccessLayer("../../Data/program_data.json")
         self.fileHandler = FileHandler()
         self.dataHandler = DataHandler(template_name)
         self.imagePainter = ImagePainter()
@@ -83,7 +114,7 @@ class Template:
 
     def save(self):
         self.saveImageOnly()
-        self.dataHandler.saveData(self.fileHandler.getBook(), self.currentPage)
+        self.dataHandler.saveData(self.fileHandler.getFile(), self.currentPage)
         return True
 
     def saveImageOnly(self):

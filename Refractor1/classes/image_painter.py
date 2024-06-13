@@ -34,7 +34,7 @@ class ImagePainter:
         if r_width == self.getWidth():
             return True
         r_height = int(r_width * (self.getHeight() / self.getWidth()))
-        self.image = self.image.resize((r_width, r_height), Image.ANTIALIAS)
+        self.image = self.image.resize((r_width, r_height), Image.LANCZOS)
         self.reloadImage()
         return True
 

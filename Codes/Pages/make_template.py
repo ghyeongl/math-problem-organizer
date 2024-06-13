@@ -2,8 +2,8 @@ from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk, ImageDraw
 
-from Refractor1.classes.coord import Coord
-from Refractor1.classes.template import Template
+from Codes.Classes import Coord
+from Codes.Classes.template_service_layer import TemplateModifier
 
 
 # 한 페이지를 할당하는 캔버스를 관리
@@ -34,8 +34,7 @@ class PageOnCanvas(Canvas):
         self.bind_all("<Down>", self._arrow_down)
 
         self.rect = None
-        self.start = Coord(w=self.width, h=self.height)
-        self.end = Coord(w=self.width, h=self.height)
+        self.coord = Coord(bw=self.width, bh=self.height)
 
         self.updateCanvas()
 
@@ -46,18 +45,17 @@ class PageOnCanvas(Canvas):
         self.configure(scrollregion=(0, 0, self.template.getWidth(), self.template.getHeight()))
 
     def on_button_press(self, event):
-        self.start = Coord(event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
-        self.rect = self.create_rectangle(self.start.x, self.start.y, self.start.x, self.start.y, fill="",
+        self.coord.setStartPoint(event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
+        self.rect = self.create_rectangle(self.coord.x, self.coord.y, self.coord.x, self.coord.y, fill="",
                                           outline="red")
 
     def on_move_press(self, event):
-        current = Coord(event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
-        self.coords(self.rect, self.start.x, self.start.y, current.x, current.y)
+        current = (event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
+        self.coords(self.rect, self.coord.x, self.coord.y, current[0], current[1])
 
     def on_button_release(self, event):
-        self.end.setCoord(event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
-        self.end.x = self.template.getWidth() if self.end.x > self.template.getWidth() else self.end.x
-        self.end.y = self.template.getHeight() if self.end.y > self.template.getHeight() else self.end.y
+        self.coord.setEndPoint(event.x - 5, event.y + self.scroller.get()[0] * self.template.getHeight() - 5)
+
         self.template.addRectangle(self.start, self.end)
         self.updateCanvas()
         self.delete(self.rect)
@@ -83,11 +81,11 @@ class PageOnCanvas(Canvas):
 
 
 class CanvasHandler(Frame):
-    def __init__(self, chiefClass, **kw):
+    def __init__(self, chiefClass, templateName, **kw):
         super().__init__(**kw)
         self.chiefClass = chiefClass  # CanvasHandler should be intend Tkinter class
         self.templateName = "Sample Template"
-        self.template = Template(self.templateName)
+        self.template = TemplateModifier(self.templateName)
 
         self.configurator = self.Configurator(self.chiefClass, self.template)
         self.controller = self.Controller(self.chiefClass, self.template, self.configurator)
@@ -212,9 +210,9 @@ class CanvasHandler(Frame):
 class Window(Tk):
     def __init__(self):
         super().__init__()
-        self.template = Template("Sample Template")
+        self.template = TemplateModifier("Sample Template")
 
-        self.c0 = self.ColumnC(self)
+        self.c0 = self.ColumnC(self, templateName)
         self.a0 = self.ColumnA(self, self.c0.canvasH)
         self.b0 = self.ColumnB(self, self.c0.canvasH)
         self.c0.canvasH.configurator.lateInitVariables()
@@ -254,12 +252,12 @@ class Window(Tk):
             self.bind_all("<Right>", canvasH.controller.nextPageEvent)
 
     class ColumnC(Frame):
-        def __init__(self, master0):
+        def __init__(self, master0, templateName):
             super().__init__(master0)
             self.master0 = master0
             self.config(width=1500, height=800)
             self.vbar = Scrollbar(self, orient=VERTICAL)
-            self.canvasH = CanvasHandler(self.master0)
+            self.canvasH = CanvasHandler(self.master0, templateName)
             self.test = Label(self, text="test", background="green")
             self.vbar.pack(side=RIGHT, fill=Y)
             self.canvasH.pack(side=LEFT, fill=BOTH, expand=True)
@@ -274,6 +272,7 @@ class Window(Tk):
         self.destroy()
 
     def setTitle(self, value=None):
+        print(self.c0.canvasH.templateName)
         if value is None:
             self.title(f"Template maker : {self.c0.canvasH.templateName}")
         else:
@@ -283,5 +282,5 @@ class Window(Tk):
         self.protocol("WM_DELETE_WINDOW", self._setActionOnClose)
         self.mainloop()
 
-
-window = Window()
+if __name__ == "__main__":
+    window = Window()

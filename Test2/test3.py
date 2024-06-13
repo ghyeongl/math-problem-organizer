@@ -1,7 +1,3 @@
-from PIL import Image, ImageDraw, ImageFont
-
-from Refractor1.classes.coord import Coord
-from Refractor1.classes.data_handler import DataFileHandler, DataHandler
 import os
 from PIL import Image
 from PIL.ImageDraw import Draw
@@ -12,152 +8,6 @@ from Refractor1.classes.data_handler import DataHandler
 # Entire problem data is stored at ProblemLayout
 # they recursively exports their data to the image painter
 from Refractor1.classes.pdf_converter import PdfConverter
-
-
-# class CoordData:
-#     def __init__(self, template_name):
-#         self.template_name = template_name
-#         self.data = {}
-#         self.workspace = "Exports/Temp_Handout"
-#         self.outputSpace = "Exports/Temp_Problems"
-#         self._reset_dir()
-#         self.data_init()
-#
-#     def data_init(self):
-#         with open(f"../Data/templates.json", "r") as f:
-#             self.data = json.load(f)
-#
-#     def get_data(self):
-#         return self.data[self.template_name]
-#
-#     def _reset_dir(self):
-#         shutil.rmtree(f"../{self.workspace}")
-#         os.mkdir(f"../{self.workspace}")
-#         shutil.rmtree(f"../{self.outputSpace}")
-#         os.mkdir(f"../{self.outputSpace}")
-#
-#
-# class FileHandler:
-#     def __init__(self, file_path, coordData: CoordData):
-#         self.workspace = coordData.workspace
-#         self.outputSpace = coordData.outputSpace
-#         self.file = file_path
-#         self.data = coordData.get_data()[file_path]
-#         self.imgNum = 0
-#
-#     def isImported(self):
-#         return self.file != ''
-#
-#     # 1 mm 당 24 pixel -> 610 ppi
-#
-#     def exportImages(self):
-#         file_name = self.file.split("/")[-1].split(".")[0]
-#         if not os.path.exists(f"../{self.workspace}/{file_name}"):
-#             os.mkdir(f"../{self.workspace}/{file_name}")
-#         if not os.path.exists(f"../{self.outputSpace}/{file_name}"):
-#             os.mkdir(f"../{self.outputSpace}/{file_name}")
-#
-#         thread_list = []
-#         for page in self.data.keys():
-#             t = pdf_convert.PdfConverter(self.file, file_name, page, page, dpi=600, temp_path=self.workspace)
-#             thread_list.append(t)
-#             t.start()
-#             if len(thread_list) == 8:
-#                 for thread in thread_list:
-#                     thread.join()
-#                 thread_list = []
-#
-#         for t in thread_list:
-#             t.join()
-#
-#         for page in self.data.keys():
-#             img_name = f"../{self.workspace}/{file_name}/{str(page)}.jpg"
-#             for i, coord in enumerate(self.data[page]):
-#                 img = Image.open(img_name)
-#                 width, height = img.size
-#                 x1, y1 = coord[0][0] / coord[2][0] * width, coord[0][1] / coord[2][1] * height
-#                 x2, y2 = coord[1][0] / coord[2][0] * width, coord[1][1] / coord[2][1] * height
-#                 cropped = img.crop((x1, y1, x2, y2))
-#                 imgPath = f"../{self.outputSpace}/{file_name}/{str(page)}"
-#                 if not os.path.exists(imgPath):
-#                     os.mkdir(imgPath)
-#                 cropped.save(f"{imgPath}/{str(i + 1)}.jpg")
-#                 print(f"saved: {imgPath}/{str(i + 1)}.jpg")
-
-
-class HandoutMaker:
-    def __init__(self, templateName):
-        self.pageL = PageLayoutInformation()
-        self.dataH = DataHandler(templateName)
-
-        self.font = self.setFont(100)
-
-        self.problemsArr = ProblemsArranger()
-        self.setProblems()
-        self.problemsArr.getStructPages()
-
-        self.img_list = []
-
-    def setFont(self, size):
-        self.font = ImageFont.truetype("../../Data/Pretendard-Medium.otf", size)
-        return self.font
-
-    def setProblems(self):
-        data = self.dataH.getData()
-        for t in data:
-            for f in data[t]:
-                for i, page in enumerate(data[t][f]):
-                    p = Problem(t, f, page, i)
-                    self.problemsArr.appendProblem(p)
-
-    def makeEachPage(self):
-        for i in range(len(self.problemsArr.pages)):
-            pgNum = i + 1
-            image = Image.new("RGB", (self.pageL.width, self.pageL.height), (255, 255, 255))
-            draw = ImageDraw.Draw(image)
-
-            startP = Coord(self.pageL.margin, self.pageL.margin, self.pageL.avWidth, self.pageL.avHeight)
-            startP = self.setHeaderArea(startP, draw, self.dataH.templateName)
-            startP = self.setProblemsArea(startP, draw, self.problemsArr.getPage(pgNum))
-            startP = self.setPageNumberArea(startP, draw, pgNum)
-
-            self.img_list.append(image.copy())
-
-    def setHeaderArea(self, start: Coord, draw, templateName):
-        text = f"정인수학 프린트: {templateName} - 날짜: ____________ 이름: ____________ 점수: ____________"
-        textSize = 100
-        draw.text((start.x, start.y - textSize), text, font=self.setFont(textSize), fill=(0, 0, 0))
-        return Coord(start.x, start.y, start.w, start.h)
-
-    def setTitleArea(self, start: Coord, draw):
-        text = f"날짜: ____________ 이름: ____________ 점수: ____________"
-        margin = 100
-        textSize = 120
-        draw.text((start.x, start.y + margin), text, font=self.setFont(textSize), fill=(0, 0, 0))
-        return Coord(start.x, start.y + textSize + margin, start.w, start.h - textSize - margin)
-
-    @staticmethod
-    def setProblemsArea(start: Coord, draw, page):
-        gap = (page.getLeftSpace()) / (len(page.blocks))
-        for block in page.blocks:
-            startP = block.setArea(start, draw, gap)
-        return Coord(start.x, start.h, start.w, start.h)
-
-    def setPageNumberArea(self, start: Coord, draw, pageNum):
-        if start.y != start.h:
-            start.y = start.h
-        draw.text((start.x, start.y), str(pageNum), font=self.setFont(100), fill=(0, 0, 0))
-        return Coord(start.x, start.h, start.w, start.h)
-
-
-class PageLayoutInformation:
-    def __init__(self):
-        self.dpm = 24
-        self.width = 210 * self.dpm
-        self.height = 297 * self.dpm
-        self.margin = 15 * self.dpm
-        self.avWidth = 180 * self.dpm
-        self.avHeight = 267 * self.dpm
 
 
 class LayoutHandler:
@@ -197,7 +47,7 @@ class LayoutHandler:
             else:
                 self.handoutL.addPageLayout(self.pageH.pageL)
 
-    def attachToImage(self):
+    def getPageImage(self):
         pass
 
     class PageHandler:
@@ -456,4 +306,3 @@ class Problem:
         pImg = self.getImage()
         pImg = self.resizeImage(pImg, startP)
         imgDraw.paste(pImg, (startP.x, startP.y))
-
