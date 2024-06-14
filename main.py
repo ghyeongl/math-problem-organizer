@@ -1,16 +1,6 @@
-# This is a sample Python script.
-from Refractor1.tkinter_pages import make_template
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+# from Refractor1.tkinter_pages import make_template
+from Refractor1.tkinter_pages import main_page
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    make_template.showTemplateWindow()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    window = main_page.Window()

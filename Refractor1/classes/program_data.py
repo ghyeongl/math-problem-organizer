@@ -2,55 +2,6 @@ import json
 import os
 
 
-class ProgramData:
-    def __init__(self):
-        self.dataFileH = ProgramDataFileHandler()
-        self.currentStudent = ""
-        self.currentTemplate = ""
-
-    def getSnapshots(self):
-        return self.dataFileH.getSnapshotsList()
-
-    def getStudents(self):
-        return self.dataFileH.getStudentsList()
-
-    def getTemplates(self):
-        temp = self.dataFileH.getTemplatesList()
-        if self.dataFileH.getTemplatesList() is not None:
-            temp.append("<새로 만들기>")
-        return temp
-
-    def appendTemplate(self, template):
-        self.dataFileH.appendTemplate(template)
-
-    def addSnapshot(self, snapshot="기본 스냅샷"):
-        self.dataFileH.appendSnapshot(snapshot)
-
-    def addStudent(self, student="홍길동"):
-        self.dataFileH.appendStudent(student)
-
-    def getIncorrect(self):
-        if self.currentStudent == "" or self.currentTemplate == "":
-            return []
-        return self.dataFileH.getIncorrect(self.currentStudent, self.currentTemplate)
-
-    def setCurrentSnapshot(self, snapshot):
-        self.dataFileH.setCurrentSnapshot(snapshot)
-
-    def setDataBySnapshot(self):
-        self.dataFileH.loadStudentsList()
-        self.dataFileH.loadTemplatesList()
-
-    def setIncorrectByData(self):
-        self.getIncorrect()
-
-    def setCurrentStudent(self, student):
-        self.currentStudent = student
-
-    def setCurrentTemplate(self, template):
-        self.currentTemplate = template
-
-
 class ProgramDataFileHandler:
     def __init__(self):
         self.filePath = "../../Data/program_data.json"

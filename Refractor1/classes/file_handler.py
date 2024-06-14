@@ -13,8 +13,8 @@ class FileHandler:
 
         self.pdfConverter = PdfConverter()
 
-        self.fileDir = "../../Exports/Temp_Books"
-        self.imgDir = "../../Exports/Temp_Images"
+        self.fileDir = "Exports/Temp_Books"
+        self.imgDir = "Exports/Temp_Images"
         self._checkTempDir()
 
         self.imgExt = "jpg"

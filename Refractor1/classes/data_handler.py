@@ -5,6 +5,7 @@ from Refractor1.classes.coord import Coord
 
 
 class DataHandler:
+    # template 이름을 받음 / datafilehandler에서 템플릿 이름을 가져와서 json을 읽음
     def __init__(self, template_name):
         self.templateName = template_name
         self.dataFileHandler = DataFileHandler(self)
@@ -44,7 +45,7 @@ class DataHandler:
         self.stack = []
         self.redoStack = []
 
-
+'''
 class DataFileHandler:
     def __init__(self, dataHandler):
         self.dataHandler = dataHandler
@@ -126,5 +127,6 @@ class DataFileHandler:
             if file not in self.data[self.dataHandler.templateName]:
                 self.data[self.dataHandler.templateName][file] = {}
             # 페이지 번호가 존재하지 않는 경우
-            if str(currentPage) not in self.data[self.dataHandler.templateName][file]:
-                self.data[self.dataHandler.templateName][file][str(currentPage)] = []
+            if str(currentPage) not in self.data[self.dataHandler.templateName][book.title]:
+                self.data[self.dataHandler.templateName][book.title][str(currentPage)] = []
+'''

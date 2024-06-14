@@ -2,39 +2,42 @@ from tkinter import *
 import tkinter.ttk as ttk
 
 from Refractor1.classes.program_data import ProgramData
-from Refractor1.tkinter_pages.config_template import ConfigTemplateWindow
+from Codes.Classes import DataAccessLayer
+from Codes.Classes.curent_settings import CurrentSettings
+from Codes.Classes import SnapshotServiceLayer
+from Codes.Classes import TemplateModifier
 
 
-class MainWindow(Tk):
+class Window(Tk):
     def __init__(self):
         super().__init__()
 
         self.title("Practice Management")
         self.geometry('610x150')
 
-        self.programData = ProgramData()
-        self.a0 = self.ColumnA(self, self.programData)
-        self.b0 = self.ColumnB(self, self.programData)
-        self.c0 = self.ColumnC(self, self.programData)
-        self.d0 = self.ColumnD(self, self.programData)
-        self.e0 = self.ColumnE(self, self.programData)
-        self.configTemplateWindow = None
+
+        self.currentSettings = CurrentSettings()
+        self.snapshotService = SnapshotServiceLayer()
+        self.templateService = TemplateModifier()
+        self.a0 = self.ColumnA(self.snapshotService.getSnapshotsList(), self.currentSettings)
+        self.b0 = self.ColumnB(self.programData)
+        self.c0 = self.ColumnC(self.programData)
+        self.d0 = self.ColumnD(self.programData)
+        self.e0 = self.ColumnE(self.programData)
 
         self._packFrames()
         self._configWindow()
 
     class ColumnA(Frame):
-        def __init__(self, master, programData):
-            self.master = master
-            self.programData = programData
+        def __init__(self, snapshotsList, setSnapshotName):
             super().__init__()
-            self.a1 = Label(self, text="스냅샷 선택", width=10)
-            self.a2 = ttk.Combobox(self, values=self.programData.getSnapshots(), state="readonly", width=30)
-            self.a3 = Button(self, text="스냅샷 만들기", width=20, command=self.master.addSnapshot)
-            self.a1.grid(row=0, column=0)
-            self.a2.grid(row=0, column=1)
-            self.a3.grid(row=0, column=2)
-            self.a2.bind("<<ComboboxSelected>>", self.master.whenSnapshotSelected)
+            a1 = Label(self, text="스냅샷 선택", width=10)
+            a2 = ttk.Combobox(self, values=snapshotsList, state="readonly", width=30)
+            a2.bind("<<ComboboxSelected>>", lambda event: setSnapshotName(a2.get()))
+            a3 = Button(self, text="스냅샷 만들기", width=20, command=None)
+            a1.grid(row=0, column=0)
+            a2.grid(row=0, column=1)
+            a3.grid(row=0, column=2)
 
     class ColumnB(Frame):
         def __init__(self, master, programData):
@@ -122,5 +125,10 @@ class MainWindow(Tk):
     def _configWindow(self):
         self.mainloop()
 
+    def setSnapshotName(self, snapshotName):
+        self.currentSettings.setSnapshotName(snapshotName)
 
-window = MainWindow()
+
+
+if __name__ == "__main__":
+    window = Window()
