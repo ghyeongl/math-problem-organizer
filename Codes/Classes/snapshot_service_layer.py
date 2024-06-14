@@ -19,4 +19,3 @@ class SnapshotServiceLayer:
 
     def removeSnapshot(self, snapshotName):
         self.accessLayer.removeSnapshot(snapshotName)
-    

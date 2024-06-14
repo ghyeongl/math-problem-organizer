@@ -1,6 +1,6 @@
 from tkinter import *
 
-from Refractor1.tkinter_pages.make_template import MakeTemplateWindow
+from Codes.View.make_template import MakeTemplateWindow
 
 
 class ConfigHandler:

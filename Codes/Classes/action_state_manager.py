@@ -1,23 +1,18 @@
 import json
 import os
 
-from Refractor1.classes.coord import Coord
+from Codes.Classes.data_access_layer import Coord
+from Codes.Classes.template_service_layer import TemplateServiceLayer
 
 
-class DataHandler:
+
+class ActionStateManager:
     # template 이름을 받음 / datafilehandler에서 템플릿 이름을 가져와서 json을 읽음
-    def __init__(self, template_name):
-        self.templateName = template_name
-        self.dataFileHandler = DataFileHandler(self)
+    def __init__(self, templateService: TemplateServiceLayer):
+        # self.dataFileHandler = DataFileHandler(self)
+        self.templateService = templateService
         self.stack = []
         self.redoStack = []
-
-    def getData(self):
-        self.dataFileHandler.placeDatafile()
-        return self.dataFileHandler.getData()
-
-    def getCoord(self, template, file, page):
-        return self.dataFileHandler.getCoords(template, file, page)
 
     def appendCoordData(self, start: Coord, end: Coord):
         raw = ((start.x, start.y), (end.x, end.y), (start.w, start.h))
@@ -26,6 +21,7 @@ class DataHandler:
 
     def saveData(self, file, page):
         self.dataFileHandler.saveData(file, page)
+        self.templateService.saveData()
 
     def undo(self) -> bool:
         if len(self.stack) == 0:
@@ -41,9 +37,7 @@ class DataHandler:
         self.stack.append(self.redoStack.pop())
         return True
 
-    def clear(self):
-        self.stack = []
-        self.redoStack = []
+
 
 '''
 class DataFileHandler:

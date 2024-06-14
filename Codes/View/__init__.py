@@ -1,0 +1,3 @@
+from Codes.View.config_template import ConfigTemplateWindow
+from make_template import MakeTemplateWindow
+from main_page import Window

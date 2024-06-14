@@ -1,8 +1,7 @@
 import os
 import shutil
 
-from Refractor1.classes.book import Book
-from Refractor1.classes.pdf_converter import PdfConverter
+from Codes.Classes.pdf_converter import PdfConverter
 
 
 class FileHandler:

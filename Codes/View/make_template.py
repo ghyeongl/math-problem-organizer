@@ -81,11 +81,11 @@ class PageOnCanvas(Canvas):
 
 
 class CanvasHandler(Frame):
-    def __init__(self, chiefClass, templateName, **kw):
+    def __init__(self, chiefClass, templateModifier, **kw):
         super().__init__(**kw)
         self.chiefClass = chiefClass  # CanvasHandler should be intend Tkinter class
         self.templateName = "Sample Template"
-        self.template = TemplateModifier(self.templateName)
+        self.template = templateModifier
 
         self.configurator = self.Configurator(self.chiefClass, self.template)
         self.controller = self.Controller(self.chiefClass, self.template, self.configurator)
@@ -207,12 +207,12 @@ class CanvasHandler(Frame):
             self.template.setPage(1)
 
 
-class Window(Tk):
+class MakeTemplateWindow(Tk):
     def __init__(self):
         super().__init__()
-        self.template = TemplateModifier("Sample Template")
+        self.templateModifier = TemplateModifier("Sample Template")
 
-        self.c0 = self.ColumnC(self, templateName)
+        self.c0 = self.ColumnC(self, self.templateModifier)
         self.a0 = self.ColumnA(self, self.c0.canvasH)
         self.b0 = self.ColumnB(self, self.c0.canvasH)
         self.c0.canvasH.configurator.lateInitVariables()
@@ -252,12 +252,12 @@ class Window(Tk):
             self.bind_all("<Right>", canvasH.controller.nextPageEvent)
 
     class ColumnC(Frame):
-        def __init__(self, master0, templateName):
+        def __init__(self, master0, templateModifier: TemplateModifier):
             super().__init__(master0)
             self.master0 = master0
             self.config(width=1500, height=800)
             self.vbar = Scrollbar(self, orient=VERTICAL)
-            self.canvasH = CanvasHandler(self.master0, templateName)
+            self.canvasH = CanvasHandler(self.master0, templateModifier)
             self.test = Label(self, text="test", background="green")
             self.vbar.pack(side=RIGHT, fill=Y)
             self.canvasH.pack(side=LEFT, fill=BOTH, expand=True)
@@ -283,4 +283,4 @@ class Window(Tk):
         self.mainloop()
 
 if __name__ == "__main__":
-    window = Window()
+    window = MakeTemplateWindow()

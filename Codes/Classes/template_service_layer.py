@@ -1,16 +1,14 @@
 import os.path
 
-from Refractor1.classes.data_handler import DataHandler
 from Refractor1.classes.file_handler import FileHandler
 from Refractor1.classes.image_painter import ImagePainter
-from Codes.Classes import DataAccessLayer
+from Codes.Classes import SnapshotServiceLayer
 from Codes.Classes import Snapshot
 
 
 class TemplateServiceLayer:
     def __init__(self):
         self.currentSnapshot = None
-        pass
     
     def setSnapshot(self, snapshot):
         self.currentSnapshot:Snapshot = snapshot
@@ -37,8 +35,8 @@ class TemplateServiceLayer:
     
 
 class TemplateModifier:
-    def __init__(self):
-        self.accessLayer = DataAccessLayer("../../Data/program_data.json")
+    def __init__(self, template_name):
+        self.snapService = SnapshotServiceLayer()
         self.fileHandler = FileHandler()
         self.dataHandler = DataHandler(template_name)
         self.imagePainter = ImagePainter()
@@ -84,11 +82,6 @@ class TemplateModifier:
             self.imagePainter.resize(1000)
         return True
 
-    def addRectangle(self, start, end):
-        self.imagePainter.drawRectangle(start, end)
-        self.dataHandler.appendCoordData(start, end)
-        return True
-
     def undo(self):
         if self.imagePainter is None:
             return False
@@ -115,7 +108,6 @@ class TemplateModifier:
     def save(self):
         self.saveImageOnly()
         self.dataHandler.saveData(self.fileHandler.getFile(), self.currentPage)
-        return True
 
     def saveImageOnly(self):
         if self.imagePainter.image is None:

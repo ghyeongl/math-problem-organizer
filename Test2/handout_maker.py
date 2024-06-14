@@ -1,17 +1,17 @@
 from PIL import Image, ImageDraw, ImageFont
 
-from Refractor1.classes.coord import Coord
-from Refractor1.classes.data_handler import DataFileHandler, DataHandler
+from Codes.Classes import Coord
+from Codes.Classes.action_state_manager import DataFileHandler
 import os
 from PIL import Image
 from PIL.ImageDraw import Draw
-from Refractor1.classes.coord import Coord
-from Refractor1.classes.data_handler import DataHandler
+from Codes.Classes import Coord
+from Codes.Classes.action_state_manager import DataHandler
 # Code Structure: Entire print data is stored at HandoutLayout
 # Entire page data is stored at PageLayout
 # Entire problem data is stored at ProblemLayout
 # they recursively exports their data to the image painter
-from Refractor1.classes.pdf_converter import PdfConverter
+from Codes.Classes.pdf_converter import PdfConverter
 
 
 # class CoordData:
@@ -84,7 +84,7 @@ from Refractor1.classes.pdf_converter import PdfConverter
 #                 cropped.save(f"{imgPath}/{str(i + 1)}.jpg")
 #                 print(f"saved: {imgPath}/{str(i + 1)}.jpg")
 
-
+'''
 class HandoutMaker:
     def __init__(self, templateName):
         self.pageL = PageLayoutInformation()
@@ -148,7 +148,7 @@ class HandoutMaker:
             start.y = start.h
         draw.text((start.x, start.y), str(pageNum), font=self.setFont(100), fill=(0, 0, 0))
         return Coord(start.x, start.h, start.w, start.h)
-
+'''
 
 class PageLayoutInformation:
     def __init__(self):
@@ -448,12 +448,3 @@ class Problem:
         dataH = DataHandler(self.template)
         data = dataH.getCoord(self.template, self.file, self.page)
         return data[self.number]
-
-    def attachToImage(self, imgDraw: Draw, startP):
-        # convert image and get path
-        # load image from path and resize
-        # attach problem image to [image] correctly
-        pImg = self.getImage()
-        pImg = self.resizeImage(pImg, startP)
-        imgDraw.paste(pImg, (startP.x, startP.y))
-

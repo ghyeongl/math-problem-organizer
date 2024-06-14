@@ -6,6 +6,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk, ImageDraw
 # from Tests import pdf_convert
 import time
+from Codes.Classes.action_state_manager import ActionStateManager
 
 
 class SrcCanvas(Canvas):
@@ -155,8 +156,9 @@ class CanvasHandler(Frame):
 
     # 전체적인 in out 을 관리하는 역할
     class InterfaceH:
-        def __init__(self, master2):
+        def __init__(self, actionStateManager: ActionStateManager, master2):
             self.master2 = master2
+            self.stateManager = actionStateManager
 
         def importFile(self):
             self.master2.pagesH.destroy()
@@ -196,7 +198,7 @@ class CanvasHandler(Frame):
             self.master2.dataH.reset()
 
         def saveData(self):
-            self.master2.dataH.save()
+            self.actionStateManager.saveData()
 
     # 파일을 관리하는 역할
     class FileH:

@@ -3,9 +3,10 @@ import tkinter.ttk as ttk
 
 from Refractor1.classes.program_data import ProgramData
 from Codes.Classes import DataAccessLayer
-from Codes.Classes.curent_settings import CurrentSettings
+from Codes.Classes import CurrentSettings
 from Codes.Classes import SnapshotServiceLayer
 from Codes.Classes import TemplateModifier
+from Codes.View import ConfigTemplateWindow
 
 
 class Window(Tk):

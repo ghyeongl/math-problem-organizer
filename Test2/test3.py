@@ -1,15 +1,15 @@
 import os
 from PIL import Image
 from PIL.ImageDraw import Draw
-from Refractor1.classes.coord import Coord
-from Refractor1.classes.data_handler import DataHandler
+from Codes.Classes import Coord
+from Codes.Classes.action_state_manager import DataHandler
 # Code Structure: Entire print data is stored at HandoutLayout
 # Entire page data is stored at PageLayout
 # Entire problem data is stored at ProblemLayout
 # they recursively exports their data to the image painter
-from Refractor1.classes.pdf_converter import PdfConverter
+from Codes.Classes.pdf_converter import PdfConverter
 
-
+'''
 class LayoutHandler:
     def __init__(self, startP: Coord):
         # initialize Handout layout
@@ -94,7 +94,7 @@ class LayoutHandler:
             pLayout = OneProblemLayout()
             pLayout.appendProblem(problem)
             return pLayout
-
+'''
 
 # Layout means it can get exact coordinates and size of any data
 # HandoutLayout stores all PageLayouts

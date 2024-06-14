@@ -1,6 +1,5 @@
 
 
-
 class CurrentSettings:
     _instance = None
 
